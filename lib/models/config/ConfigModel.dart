@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:fluttertodo/models/todo/TodoModel.dart';
+import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -75,14 +76,14 @@ class ConfigModel extends ChangeNotifier {
   Map<String, dynamic> toJson() => _$ConfigModelToJson(this);
 
   void save() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var box = await Hive.openBox('config');
     print("saving" + json.encode(this.toJson()));
-    prefs.setString('appConfig', json.encode(this.toJson()));
+    box.put('appConfig', json.encode(this.toJson()));
   }
 
   Future load() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String result = prefs.getString('appConfig');
+    var box = await Hive.openBox('config');
+    String result = box.get('appConfig');
 
     if (result != null && result != "") {
       ConfigModel config = ConfigModel.fromJson(json.decode(result));
